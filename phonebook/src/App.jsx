@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect} from 'react'
+import axios from 'axios'
 
-const People = ({name, phoneNum}) => <p>{name} {phoneNum}</p>
+const People = ({name, number}) => <p>{name} {number}</p>
 
 const InputBox = ({text, value, onChange}) => {
   return <div>{text}<input value={value} onChange={onChange}/></div>
@@ -21,21 +22,27 @@ const PersonForm = ({onSubmit, nameValue, numValue, nameChange, numChange}) => {
 const Persons  = ({array}) => {
   return (
     <ol>
-    {array.map(item => <People key={item.id} name={item.name} phoneNum={item.phoneNum}/>)}
+    {array.map(item => <People key={item.id} name={item.name} number={item.number}/>)}
     </ol>
   )
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', phoneNum: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', phoneNum: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', phoneNum: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', phoneNum: '39-23-6423122', id: 4 }
-  ]) 
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [nameFilter, setNameFilter] = useState('')
+
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log(response)
+        setPersons(response.data)
+        console.log('promise fulfilled')
+      })
+  }, [])
 
   const peopleToShow = persons.filter(person => {
       const regex = new RegExp(nameFilter, 'i')
@@ -52,7 +59,7 @@ const App = () => {
     else {
       const nameObject = {
         name: newName,
-        phoneNum: newNumber,
+        number: newNumber,
         id: persons.length+1
     }
   
